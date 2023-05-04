@@ -75,12 +75,54 @@ const upscale = async (buttonMessageId, id) => {
   }
 }
 
+const swtichModel = async (mode='fast') => {
+  try {
+    const data = JSON.stringify({
+      cmd: `${mode}`,
+      ref: '',
+      webhookOverride: ''
+    });
+
+    const config = {
+      method: 'post',
+      url: 'https://api.thenextleg.io/v2/slash-commands',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      data: data
+    };
+
+    const response = await axios(config);
+    return response.data
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 const generate = async (prompt, aspect='2:3') => {
+  let progress;
+  // ensure in fast mode
+  let result = await swtichModel('fast');
+  if (!result['success']) return;
+
+  // wait for result
+  progress = 0;
+  while(progress < 100) {
+    const {messageId} = result;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    message = await getMessage(messageId);
+    progress = message.progress;
+  }
+  const {content} = message.response;
+  console.log(`${content}`)
+
+  // generate image
   result = await imagine(prompt, aspect);
   if (!result['success']) return;
 
   // wait for result
-  let progress = 0;
+  progress = 0;
   while(progress < 100) {
     // wait for one second
     await new Promise(resolve => setTimeout(resolve, 1000));
