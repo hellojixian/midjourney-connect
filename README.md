@@ -1,4 +1,4 @@
-# mjdjourney-connect
+# MidJourney connect
 Sample code for showing how to connect with mjdjourney
 
 ## How it works
